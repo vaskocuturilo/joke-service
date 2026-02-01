@@ -12,7 +12,9 @@ jobs:
     strategy:
       matrix:
         go-version: [ '1.25.x' ]
-        mongodb-version: [ '8.0' ]
+    defaults:
+      run:
+        working-directory: ./joke-api-service
 
     steps:
       - uses: actions/checkout@v5
@@ -22,7 +24,7 @@ jobs:
           go-version: ${{ matrix.go-version }}
 
       - name: Install dependencies 💻
-        run: go get ./...
+        run: go get .
 
       - name: Build 👷
         run: go build -v ./...
