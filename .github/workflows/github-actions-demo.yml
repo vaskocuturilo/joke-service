@@ -22,7 +22,7 @@ jobs:
           go-version: ${{ matrix.go-version }}
 
       - name: Install dependencies 💻
-        run: go get .
+        run: go get ./...
 
       - name: Build 👷
         run: go build -v ./...
