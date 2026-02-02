@@ -23,7 +23,7 @@ func NewClient(baseURL string, timeout time.Duration) *Client {
 	}
 }
 
-func (j Client) GetRandomJoke(ctx context.Context) (domain.Joke, error) {
+func (j *Client) GetRandomJoke(ctx context.Context) (domain.Joke, error) {
 	request, err := http.NewRequestWithContext(ctx, "GET", j.baseURL, nil)
 
 	if err != nil {
@@ -39,7 +39,7 @@ func (j Client) GetRandomJoke(ctx context.Context) (domain.Joke, error) {
 	defer func(Body io.ReadCloser) {
 		err := Body.Close()
 		if err != nil {
-			log.Fatalf("Critical error with defer: %v", err)
+			log.Printf("failed to close body: %v", err)
 		}
 	}(response.Body)
 
