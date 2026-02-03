@@ -111,7 +111,7 @@ func TestGetRandomJoke_ReproduceStatusCode(t *testing.T) {
 		{
 			name:           "Wrong Status Code",
 			mockResponse:   `{}`,
-			mockStatus:     http.StatusNotFound,
+			mockStatus:     http.StatusBadRequest,
 			wantErrContain: "unexpected status code: 400",
 		},
 		{
