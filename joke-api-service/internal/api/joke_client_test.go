@@ -117,6 +117,18 @@ func TestGetRandomJoke_ReproduceStatusCode(t *testing.T) {
 		{
 			name:           "Wrong Status Code",
 			mockResponse:   `{}`,
+			mockStatus:     http.StatusUnauthorized,
+			wantErrContain: "unexpected status code: 401",
+		},
+		{
+			name:           "Wrong Status Code",
+			mockResponse:   `{}`,
+			mockStatus:     http.StatusForbidden,
+			wantErrContain: "unexpected status code: 403",
+		},
+		{
+			name:           "Wrong Status Code",
+			mockResponse:   `{}`,
 			mockStatus:     http.StatusNotFound,
 			wantErrContain: "unexpected status code: 404",
 		},
@@ -131,6 +143,12 @@ func TestGetRandomJoke_ReproduceStatusCode(t *testing.T) {
 			mockResponse:   `{}`,
 			mockStatus:     http.StatusBadGateway,
 			wantErrContain: "unexpected status code: 502",
+		},
+		{
+			name:           "Wrong Status Code",
+			mockResponse:   `{}`,
+			mockStatus:     http.StatusServiceUnavailable,
+			wantErrContain: "unexpected status code: 503",
 		},
 	}
 
