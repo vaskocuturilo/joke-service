@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"joke-api-service/internal/api"
 	"joke-api-service/internal/config"
+	"joke-api-service/internal/domain"
 	"log"
 	"time"
 )
@@ -17,15 +18,17 @@ func main() {
 
 	defer cancel()
 
-	appConfig := config.Config{JokeURL: "https://official-joke-api.appspot.com/random_joke"}
+	appConfig := config.Config{BaseUrl: "https://official-joke-api.appspot.com"}
 
-	client := api.NewClient(appConfig.JokeURL, timeout)
+	var provider domain.JokeProvider = api.NewClient(appConfig.BaseUrl, timeout)
 
-	result, err := client.GetRandomJoke(ctx)
+	result, err := provider.GetTenJokes(ctx)
 
 	if err != nil {
 		log.Fatalf("Critical error fetching joke: %v", err)
 	}
 
-	fmt.Printf("%s, %s", result.Setup, result.Punchline)
+	for count, value := range result {
+		fmt.Printf("%d. %s, %s \n", count+1, value.Setup, value.Punchline)
+	}
 }
