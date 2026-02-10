@@ -1,5 +1,6 @@
 package api
 
+import "C"
 import (
 	"context"
 	"encoding/json"
@@ -8,6 +9,7 @@ import (
 	"joke-api-service/internal/domain"
 	"log"
 	"net/http"
+	"net/url"
 	"time"
 )
 
@@ -24,16 +26,38 @@ func NewClient(baseURL string, timeout time.Duration) *Client {
 }
 
 func (j *Client) GetRandomJoke(ctx context.Context) (domain.Joke, error) {
-	request, err := http.NewRequestWithContext(ctx, "GET", j.baseURL, nil)
+	var result domain.Joke
+
+	err := j.decodeResponse(ctx, "/random_joke", &result)
+
+	return result, err
+}
+
+func (j *Client) GetTenJokes(ctx context.Context) ([]domain.Joke, error) {
+	var result []domain.Joke
+
+	err := j.decodeResponse(ctx, "/random_ten", &result)
+
+	return result, err
+}
+
+func (j *Client) decodeResponse(ctx context.Context, endpoint string, target any) error {
+	fullURL, err := url.JoinPath(j.baseURL, endpoint)
 
 	if err != nil {
-		return domain.Joke{}, fmt.Errorf("failed to create request: %w", err)
+		return fmt.Errorf("failed to create full path: %w", err)
+	}
+
+	request, err := http.NewRequestWithContext(ctx, "GET", fullURL, nil)
+
+	if err != nil {
+		return fmt.Errorf("failed to create request: %w", err)
 	}
 
 	response, err := j.httpClient.Do(request)
 
 	if err != nil {
-		return domain.Joke{}, fmt.Errorf("failed to execute request: %w", err)
+		return fmt.Errorf("failed to execute request: %w", err)
 	}
 
 	defer func(Body io.ReadCloser) {
@@ -44,13 +68,11 @@ func (j *Client) GetRandomJoke(ctx context.Context) (domain.Joke, error) {
 	}(response.Body)
 
 	if response.StatusCode != http.StatusOK {
-		return domain.Joke{}, fmt.Errorf("unexpected status code: %d", response.StatusCode)
+		return fmt.Errorf("unexpected status code: %d", response.StatusCode)
 	}
 
-	var result domain.Joke
-
-	if err := json.NewDecoder(response.Body).Decode(&result); err != nil {
-		return domain.Joke{}, fmt.Errorf("failed to decode joke: %w", err)
+	if err := json.NewDecoder(response.Body).Decode(target); err != nil {
+		return fmt.Errorf("failed to decode joke: %w", err)
 	}
-	return result, nil
+	return nil
 }
